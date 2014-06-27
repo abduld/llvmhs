@@ -1,5 +1,7 @@
 module Main where
 
+import Parser
+
 import Text.Show.Pretty (ppShow)
 
 import Control.Monad.Trans
@@ -10,14 +12,12 @@ import System.Console.Haskeline
 
 import qualified LLVM.General.AST as AST
 
-initModule :: AST.Module
-initModule = emptyModule "t jit"
 
-process :: AST.Module -> String -> IO (Maybe AST.Module)
+process :: String -> IO ()
 process line = do
   let res = parseToplevel line
   case res of
-    Left err -> print err >> return Nothing
+    Left err -> print err
     Right ex -> mapM_ print ex
 
 main :: IO ()
@@ -27,5 +27,4 @@ main = runInputT defaultSettings loop
     minput <- getInputLine "ready> "
     case minput of
       Nothing -> outputStrLn "Bye."
-      Just input -> (liftIIO $ process input) >> loop
-      
+      Just input -> (liftIO $ process input) >> loop

@@ -18,12 +18,12 @@ int = do
 floating :: Parser Expr
 floating = Float <$> float
 
-binary s assoc = Ex.Infix (reservedOp s >> return (BinaryOp s)) assoc
+binary s f assoc = Ex.Infix (reservedOp s >> return (BinaryOp f)) assoc
 
-binops = [ [ binary "*" Ex.AssocLeft
-           , binary "/" Ex.AssocLeft ]
-         , [ binary "+" Ex.AssocLeft
-           , binary "-" Ex.AssocLeft ]
+binops = [ [ binary "*" Times Ex.AssocLeft
+           , binary "/" Divide Ex.AssocLeft ]
+         , [ binary "+" Plus Ex.AssocLeft
+           , binary "-" Minus Ex.AssocLeft ]
          ]
 
 expr :: Parser Expr
@@ -36,7 +36,7 @@ function :: Parser Expr
 function = do
   reserved "def"
   name <- identifier
-  args <- parens $ many identifier
+  args <- parens $ many variable
   body <- expr
   return $ Function name args body
 
@@ -44,7 +44,7 @@ extern :: Parser Expr
 extern = do
   reserved "extern"
   name <- identifier
-  args <- parens $ many identifier
+  args <- parens $ many variable
   return $ Extern name args
 
 call :: Parser Expr
